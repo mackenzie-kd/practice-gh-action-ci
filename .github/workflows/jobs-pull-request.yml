@@ -112,7 +112,7 @@ jobs:
         id: generate_report_url
         run: |
           PR_NUM=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
-          PUBLIC_PATH="pr${PR_NUM}"
+          PUBLIC_PATH="ci/pr${PR_NUM}"
           echo "public_path=$PUBLIC_PATH" >> $GITHUB_OUTPUT
 
       # Test
@@ -126,9 +126,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./${PUBLIC_PATH}"
-        env:
-          PUBLIC_PATH: ${{ steps.generate_report_url.outputs.public_path }}
+          path: ${{ steps.generate_report_url.outputs.public_path }}
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
