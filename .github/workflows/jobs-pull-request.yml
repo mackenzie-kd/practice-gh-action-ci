@@ -1,0 +1,101 @@
+name: Run Any Actions on PR
+'on': pull_request
+jobs:
+  build_and_deploy:
+    if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
+    # テストなので全ての書き込み権限を与える
+    permissions:
+      actions: write
+      checks: write
+      contents: write
+      deployments: write
+      issues: write
+      packages: write
+      pull-requests: write
+      repository-projects: write
+      security-events: write
+      statuses: write
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: View all pull requests
+        run: |
+            gh pr list \
+              --repo $REPO \
+              --state all \
+              --json additions,assignees,author,baseRefName,body,changedFiles,closed,closedAt,comments,commits,createdAt,deletions,files,headRefName,headRefOid,headRepository,headRepositoryOwner,id,isCrossRepository,isDraft,labels,latestReviews,maintainerCanModify,mergeable,mergeCommit,mergedAt,mergedBy,mergeStateStatus,milestone,number,potentialMergeCommit,projectCards,reactionGroups,reviewDecision,reviewRequests,reviews,state,statusCheckRollup,title,updatedAt,url
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+
+      # 先に作成されたPRが存在する場合はデプロイすると上書きしてしまう為、デプロイせずジョブを停止する
+      - name: Get count of other open pull requests
+        id: get_other_open_pr_count
+        run: |
+          OTHER_OPEN_PR_COUNT=$(\
+            gh pr list \
+              --repo $REPO \
+              --state open \
+              --json number | jq ".[].number | select(. < $PR_NUMBER)" \
+              | wc -l
+          )
+          echo "other_open_pr_count=$OTHER_OPEN_PR_COUNT" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+      - name: Check count of other open pull requests
+        if: steps.get_other_open_pr_count.outputs.other_open_pr_count > 0
+        run: |
+          echo "Cancel deployment because other pull requests exist. (OTHER_OPEN_PR_COUNT = $OTHER_OPEN_PR_COUNT)"
+          exit 1
+        env:
+          OTHER_OPEN_PR_COUNT: ${{ steps.get_other_open_pr_count.outputs.other_open_pr_count }}
+
+      # Checkout（直前より前のコミットも対象）
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # マージ先のブランチの変更を取り込んでpush
+      - name: Get latest base branch name
+        id: get_latest_base_branch_name
+        run: |
+          LATEST_BASE_BRANCH_NAME=$(\
+            gh pr list \
+              --repo $REPO \
+              --state open \
+              --json number,baseRefName | jq -r ".[] | select(.number == $PR_NUMBER) | .baseRefName"
+          )
+          echo "latest_base_branch_name=$LATEST_BASE_BRANCH_NAME" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+      - name: Merge from head branch and Push to base branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config pull.rebase false
+          git checkout $PR_FROM_BRANCH_NAME
+          git pull origin $PR_TO_BRANCH_NAME
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
+          PR_TO_BRANCH_NAME: ${{ steps.get_latest_base_branch_name.outputs.latest_base_branch_name }}
+
+      # Build
+      - name: Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+          cache-dependency-path: ./yarn.lock
+      - name: Build
+        run: yarn --frozen-lockfile && yarn run build
+
+      # Test
+      - name: Test
+        run: yarn run test
