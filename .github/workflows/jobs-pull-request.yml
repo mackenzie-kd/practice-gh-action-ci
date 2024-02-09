@@ -119,3 +119,22 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # Push Comment
+      - name: Push Comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          ORG_NAME=$(gh repo view --json owner --jq .owner.login)
+          REPO_NAME=$(gh repo view --json name --jq .name)
+          PR_NUM=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
+          PAGE_URL="https://${ORG_NAME}.github.io/${REPO_NAME}/pr${PR_NUM}/report.html"
+
+          cat << EOF > comments
+          The test report for this PR can be found at this URL.
+
+          ${PAGE_URL}
+          EOF
+
+          gh pr comment -F ./comments "${URL}"
