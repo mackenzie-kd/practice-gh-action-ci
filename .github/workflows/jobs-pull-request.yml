@@ -1,5 +1,15 @@
 name: Run Any Actions on PR
 'on': pull_request
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build_and_deploy:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
@@ -99,3 +109,12 @@ jobs:
       # Test
       - name: Test
         run: yarn run test
+
+      # Upload Report
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './reports'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
