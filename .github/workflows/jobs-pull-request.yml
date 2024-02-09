@@ -141,6 +141,7 @@ jobs:
           ${PAGE_URL}${REPORT_OUTPUT_PATH}/report.html
           EOF
 
+          # "--edit-last"で最後のコメントを更新
           gh pr comment --edit-last -F ./comments "${PR_URL}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
