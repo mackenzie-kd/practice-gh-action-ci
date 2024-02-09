@@ -112,7 +112,8 @@ jobs:
         id: generate_report_url
         run: |
           PR_NUM=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
-          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}"
+          HASH=$(git show --format='%h' --no-patch)
+          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${HASH}"
           echo "report_output_path=$REPORT_OUTPUT_PATH" >> $GITHUB_OUTPUT
 
       # Test
