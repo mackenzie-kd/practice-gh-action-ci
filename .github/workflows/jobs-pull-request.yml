@@ -112,14 +112,14 @@ jobs:
         id: generate_report_url
         run: |
           PR_NUM=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
-          PUBLIC_PATH="gh_page/ci/pr${PR_NUM}"
-          echo "public_path=$PUBLIC_PATH" >> $GITHUB_OUTPUT
+          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}"
+          echo "report_output_path=$REPORT_OUTPUT_PATH" >> $GITHUB_OUTPUT
 
       # Test
       - name: Test
         run: yarn run test
         env:
-          JEST_HTML_REPORTERS_PUBLIC_PATH: ${{ steps.generate_report_url.outputs.public_path }}
+          JEST_HTML_REPORTERS_PUBLIC_PATH: gh_page/${{ steps.generate_report_url.outputs.report_output_path }}
           JEST_HTML_REPORTERS_FILE_NAME: report.html
 
       # Upload Report
@@ -134,13 +134,10 @@ jobs:
       # Push Comment
       - name: Push Comment
         run: |
-          # ORG_NAME=$(gh repo view --json owner --jq .owner.login)
-          # REPO_NAME=$(gh repo view --json name --jq .name)
-
           cat << EOF > comments
           The test report for this PR can be found at this URL.
 
-          ${PAGE_URL}/report.html
+          ${PAGE_URL}${REPORT_OUTPUT_PATH}/report.html
           EOF
 
           gh pr comment -F ./comments "${PR_URL}"
@@ -148,3 +145,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          REPORT_OUTPUT_PATH: ${{ steps.generate_report_url.outputs.report_output_path }}
