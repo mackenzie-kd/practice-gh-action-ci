@@ -1,11 +1,6 @@
 name: Run Any Actions on PR
 'on': pull_request
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -17,7 +12,6 @@ jobs:
     permissions:
       actions: write
       checks: write
-      contents: write
       deployments: write
       issues: write
       packages: write
@@ -25,6 +19,12 @@ jobs:
       repository-projects: write
       security-events: write
       statuses: write
+
+      # Github Pagesへのアップロード権限
+      contents: read
+      pages: write
+      id-token: write
+
     runs-on: ubuntu-latest
     steps:
 
