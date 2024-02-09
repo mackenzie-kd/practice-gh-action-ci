@@ -149,5 +149,5 @@ jobs:
           EOF
 
           gh pr comment -F ./comments "${URL}"
-        environment:
+        env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
