@@ -9,5 +9,8 @@
     "target": "es2017",
     "resolveJsonModule": true,
     "moduleResolution": "node"
-  }
+  },
+  "include": [
+    "index.ts",
+  ]
 }
