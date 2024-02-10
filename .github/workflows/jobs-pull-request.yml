@@ -135,7 +135,7 @@ jobs:
       # Push Comment
       - name: Push Comment
         run: |
-          USER=$(git config user.name)
+          USER=$(git config user.name | sed "s/\[.*\]//")
           PAST_COMMIT_URL=$(gh pr view --json "comments" --jq ".comments.[] | select (.author.login == \"${USER}\") | .url")
 
           cat << EOF > comments
@@ -144,6 +144,8 @@ jobs:
           ${PAGE_URL}${REPORT_OUTPUT_PATH}/report.html
           EOF
 
+          # コメントを送信（既にコメントがある場合は上書き）
+          # https://cli.github.com/manual/gh_pr_comment
           if [ -z "$PAST_COMMIT_URL" ]; then
             gh pr comment -F ./comments "${PR_URL}"
           else
