@@ -112,10 +112,11 @@ jobs:
         id: generate_report_url
         run: |
           PR_NUM=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
-          TZ="Asia/Tokyo"
           CURRENT_TIME=$(date +"%Y%m%d_%H%M%S")
           REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${CURRENT_TIME}"
           echo "report_output_path=$REPORT_OUTPUT_PATH" >> $GITHUB_OUTPUT
+        env:
+          TZ: Asia/Tokyo
 
       # Test
       - name: Test
@@ -136,9 +137,7 @@ jobs:
       # Push Comment
       - name: Push Comment
         run: |
-          USER=$(git config user.name | sed "s/\[.*\]//")
-          COMMIT_COUNT=$(gh pr view --json "comments" --jq ".comments.[] | select (.author.login == \"${USER}\") | .url" | wc -l)
-
+          # コメントを生成
           cat << EOF > comments
           ## Test Report
           😊👍 PASS!!! 💯🎉
@@ -147,6 +146,10 @@ jobs:
 
           ${PAGE_URL}${REPORT_OUTPUT_PATH}/report.html
           EOF
+
+          # 過去のコメント数を取得
+          USER=$(git config user.name | sed "s/\[.*\]//")  # 名前に[bot]がある場合は除去
+          COMMIT_COUNT=$(gh pr view --json "comments" --jq ".comments.[] | select (.author.login == \"${USER}\") | .url" | wc -l)
 
           # コメントを送信
           # https://cli.github.com/manual/gh_pr_comment
