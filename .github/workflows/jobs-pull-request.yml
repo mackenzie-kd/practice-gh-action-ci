@@ -146,14 +146,14 @@ jobs:
 
           # コメントを送信
           # https://cli.github.com/manual/gh_pr_comment
-          if [ "$PAST_COMMIT_URL" -eq 0 ]; then
+          if [ "${COMMIT_COUNT}" -eq 0 ]; then
             gh pr comment "${PR_URL}" -F ./comments
-          elif [ "$PAST_COMMIT_URL" -eq 1 ]; then
+          elif [ "${COMMIT_COUNT}" -eq 1 ]; then
             # "--edit-last"で最後のコミットを上書き
             gh pr comment "${PR_URL}" -F ./comments --edit-last
           else
             # 複数コメントがある場合はエラー
-            echo "cannot edit because there are multiple comments."
+            echo "cannot edit because there are multiple comments. count = ${COMMIT_COUNT}"
             exit 1
           fi
 
