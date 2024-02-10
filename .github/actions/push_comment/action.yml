@@ -18,16 +18,18 @@ runs:
         # レポートURLがある場合はコメントフッターを生成
         if [ -n "${REPORT_URL}" ]; then
           COMMENT_FOOTER="
-          The test report for this PR can be found at this URL.
+        ### Test Report 📈
+        The test report for this PR can be found at this URL.
 
-          ${REPORT_URL}"
+        ${REPORT_URL}"
         fi
 
         # コメントを生成
         cat << EOF > comments
         ## CI Result Status
-        ${COMMENT_TEXT}
-        (commit: ${COMMIT_HASH})
+        ### ${COMMENT_TEXT}
+        - commit: ${COMMIT_HASH}
+        - time: date +"%Y/%-m/%-d(%a) %-H:%-M:%-S"
         ${COMMENT_FOOTER}
         EOF
 
@@ -49,6 +51,7 @@ runs:
         fi
 
       env:
+        TZ: Asia/Tokyo
         GITHUB_TOKEN: ${{ inputs.github-token }}
         PR_URL: ${{ inputs.pr-url }}
         COMMENT_TEXT: ${{ inputs.comment-text }}
