@@ -136,7 +136,7 @@ jobs:
       - name: Push Comment
         run: |
           USER=$(git config user.name | sed "s/\[.*\]//")
-          PAST_COMMIT_URL=$(gh pr view --json "comments" --jq ".comments.[] | select (.author.login == \"${USER}\") | .url")
+          COMMIT_COUNT=$(gh pr view --json "comments" --jq ".comments.[] | select (.author.login == \"${USER}\") | .url" | wc -l)
 
           cat << EOF > comments
           The test report for this PR can be found at this URL.
@@ -144,12 +144,17 @@ jobs:
           ${PAGE_URL}${REPORT_OUTPUT_PATH}/report.html
           EOF
 
-          # コメントを送信（既にコメントがある場合は上書き）
+          # コメントを送信
           # https://cli.github.com/manual/gh_pr_comment
-          if [ -z "$PAST_COMMIT_URL" ]; then
-            gh pr comment -F ./comments "${PR_URL}"
+          if [ "$PAST_COMMIT_URL" -eq 0 ]; then
+            gh pr comment "${PR_URL}" -F ./comments
+          elif [ "$PAST_COMMIT_URL" -eq 1 ]; then
+            # "--edit-last"で最後のコミットを上書き
+            gh pr comment "${PR_URL}" -F ./comments --edit-last
           else
-            gh pr comment ${PAST_COMMIT_URL} -F ./comments "${PR_URL}"
+            # 複数コメントがある場合はエラー
+            echo "cannot edit because there are multiple comments."
+            exit 1
           fi
 
         env:
