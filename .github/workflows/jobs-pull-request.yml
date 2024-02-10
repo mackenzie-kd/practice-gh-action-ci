@@ -112,6 +112,7 @@ jobs:
         id: generate_report_url
         run: |
           PR_NUM=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
+          TZ="Asia/Tokyo"
           CURRENT_TIME=$(date +"%Y%m%d_%H%M%S")
           REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${CURRENT_TIME}"
           echo "report_output_path=$REPORT_OUTPUT_PATH" >> $GITHUB_OUTPUT
@@ -153,7 +154,6 @@ jobs:
             gh pr comment "${PR_URL}" -F ./comments
           elif [ "${COMMIT_COUNT}" -eq 1 ]; then
             # "--edit-last"で最後のコミットを上書き
-            # （コメント内容が同じ場合は上書きしない）
             gh pr comment "${PR_URL}" -F ./comments --edit-last
           else
             # 複数コメントがある場合はエラー
