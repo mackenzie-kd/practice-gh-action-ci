@@ -165,7 +165,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-url: ${{ github.event.pull_request.html_url }}
           comment-text: "Test Passed !! 🤟😊💯"
-          report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
+          report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_info.outputs.report_output_path }}/report.html
 
       # Push Comment (Test Failed)
       - name: Push Test Failed Comment
@@ -175,4 +175,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-url: ${{ github.event.pull_request.html_url }}
           comment-text: "Test failed !! 🖕👺💥"
-          report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
+          report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_info.outputs.report_output_path }}/report.html
