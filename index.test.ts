@@ -5,5 +5,5 @@ test("テスト", () => {
 
 test("テスト2", () => {
     const actual = 2 * 2;
-    expect(actual).toBe(3);
+    expect(actual).toBe(4);
 })
