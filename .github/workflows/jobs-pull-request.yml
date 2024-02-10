@@ -2,7 +2,7 @@ name: Run Any Actions on PR
 'on': pull_request
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
@@ -151,7 +151,8 @@ jobs:
         if: ${{ always() }} # テスト失敗でも実行
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./gh_page"
+          name: github-pages-${GITHUB_SHA}
+          path: ./gh_page
       - name: Deploy to GitHub Pages
         if: ${{ always() }} # テスト失敗でも実行
         id: deployment
