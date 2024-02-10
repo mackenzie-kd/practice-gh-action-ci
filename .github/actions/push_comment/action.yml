@@ -1,0 +1,58 @@
+name: Push Comment to PR
+inputs:
+  github-token:
+    required: true
+  pr-url:
+    required: true
+  comment-text:
+    required: true
+  report-url:
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        COMMIT_HASH=$(git show --format='%h' --no-patch)
+
+        # レポートURLがある場合はコメントフッターを生成
+        if [ -n "${REPORT_URL}" ]; then
+          COMMENT_FOOTER="
+        ### Test Report 📈
+        The test report for this PR can be found at this URL.
+
+        ${REPORT_URL}"
+        fi
+
+        # コメントを生成
+        cat << EOF > comments
+        ## CI Result Status
+        ### ${COMMENT_TEXT}
+        - commit: ${COMMIT_HASH}
+        - time: $(date +"%Y/%-m/%-d(%a) %-H:%-M:%-S")
+        ${COMMENT_FOOTER}
+        EOF
+
+        # 過去のコメント数を取得
+        USER=$(git config user.name | sed "s/\[.*\]//")  # 名前に[bot]がある場合は除去
+        COMMENT_COUNT=$(gh pr view --json "comments" --jq ".comments.[] | select (.author.login == \"${USER}\") | .url" | wc -l)
+
+        # コメントを送信
+        # https://cli.github.com/manual/gh_pr_comment
+        if [ "${COMMENT_COUNT}" -eq 0 ]; then
+          gh pr comment "${PR_URL}" -F ./comments
+        elif [ "${COMMENT_COUNT}" -eq 1 ]; then
+          # "--edit-last"で最後のコミットを上書き
+          gh pr comment "${PR_URL}" -F ./comments --edit-last
+        else
+          # 複数コメントがある場合はエラー
+          echo "cannot edit because there are multiple comments. count = ${COMMENT_COUNT}"
+          exit 1
+        fi
+
+      env:
+        TZ: Asia/Tokyo
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        PR_URL: ${{ inputs.pr-url }}
+        COMMENT_TEXT: ${{ inputs.comment-text }}
+        REPORT_URL: ${{ inputs.report-url }}

@@ -1,5 +1,10 @@
 name: Run Any Actions on PR
 'on': pull_request
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build_and_deploy:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
@@ -15,6 +20,12 @@ jobs:
       repository-projects: write
       security-events: write
       statuses: write
+
+      # Github Pagesへのアップロード権限
+      # contents: read
+      pages: write
+      id-token: write
+
     runs-on: ubuntu-latest
     steps:
 
@@ -96,6 +107,67 @@ jobs:
       - name: Build
         run: yarn --frozen-lockfile && yarn run build
 
+      # Generate Report URL
+      - name: Generate Report URL
+        id: generate_report_url
+        run: |
+          PR_NUM=$(jq --raw-output .pull_request.number ${GITHUB_EVENT_PATH})
+          PR_TITLE=$(jq --raw-output .pull_request.title ${GITHUB_EVENT_PATH})
+          CURRENT_TIME=$(date +"%Y%m%d_%H%M%S")
+
+          # レポートのパスを生成
+          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${CURRENT_TIME}"
+          echo "report_output_path=$REPORT_OUTPUT_PATH" >> $GITHUB_OUTPUT
+
+          # レポートのタイトルを生成
+          REPORT_TITLE="Report #${PR_NUM} ${PR_TITLE}"
+          echo "report_title=$REPORT_TITLE" >> $GITHUB_OUTPUT
+        env:
+          TZ: Asia/Tokyo
+
+      # Push Comment (Test Running)
+      - name: Push Test Finish Comment
+        uses: ./.github/actions/push_comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-url: ${{ github.event.pull_request.html_url }}
+          comment-text: "Test running... 🏃🚲🚓"
+
       # Test
       - name: Test
         run: yarn run test
+        env:
+          JEST_HTML_REPORTERS_PUBLIC_PATH: gh_page/${{ steps.generate_report_url.outputs.report_output_path }}
+          JEST_HTML_REPORTERS_FILE_NAME: report.html
+          JEST_HTML_REPORTERS_PAGE_TITLE: ${{ steps.generate_report_url.outputs.report_title }}
+
+      # Upload Report
+      - name: Upload artifact
+        if: ${{ always() }} # テスト失敗でも実行
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./gh_page"
+      - name: Deploy to GitHub Pages
+        if: ${{ always() }} # テスト失敗でも実行
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # Push Comment (Test Passed)
+      - name: Push Test Passed Comment
+        if: ${{ success() }} # テスト成功で実行
+        uses: ./.github/actions/push_comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-url: ${{ github.event.pull_request.html_url }}
+          comment-text: "Test Passed !! 🤟😊💯"
+          report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
+
+      # Push Comment (Test Failed)
+      - name: Push Test Failed Comment
+        if: ${{ failure() }} # テスト失敗で実行
+        uses: ./.github/actions/push_comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-url: ${{ github.event.pull_request.html_url }}
+          comment-text: "Test failed !! 🖕👺💥"
+          report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
