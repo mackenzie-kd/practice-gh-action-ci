@@ -1,9 +1,11 @@
 name: Push Comment to PR
-# inputs:
-#   who-to-greet:  # id of input
-#     description: 'Who to greet'
-#     required: true
-#     default: 'World'
+inputs:
+  github-token:
+    required: true
+  pr-url:
+    required: true
+  report-url:
+    required: false
 # outputs:
 #   random-number:
 #     description: "Random number"
@@ -22,7 +24,7 @@ runs:
 
         The test report for this PR can be found at this URL.
 
-        ${PAGE_URL}${REPORT_OUTPUT_PATH}/report.html
+        ${REPORT_URL}
         EOF
 
         # 過去のコメント数を取得
@@ -43,7 +45,10 @@ runs:
         fi
 
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PR_URL: ${{ github.event.pull_request.html_url }}
-        PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-        REPORT_OUTPUT_PATH: ${{ steps.generate_report_url.outputs.report_output_path }}
+        # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        # PR_URL: ${{ github.event.pull_request.html_url }}
+        PR_URL: ${{ inputs.pr-url }}
+        # PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        # REPORT_OUTPUT_PATH: ${{ steps.generate_report_url.outputs.report_output_path }}
+        REPORT_URL: ${{ inputs.report-url }}

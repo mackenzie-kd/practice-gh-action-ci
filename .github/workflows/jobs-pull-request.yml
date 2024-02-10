@@ -145,6 +145,10 @@ jobs:
       # Push Comment (Test Finish)
       - name: Push Test Finish Comment
         uses: ./.github/actions/push_comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-url: ${{ github.event.pull_request.html_url }}
+          report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
         # run: |
         #   COMMIT_HASH=$(git show --format='%h' --no-patch)
 
