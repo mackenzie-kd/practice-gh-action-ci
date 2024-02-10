@@ -19,12 +19,10 @@ runs:
 
         # レポートURLがある場合はコメントフッターを生成
         if [ -z "${REPORT_URL}" ]; then
-          COMMENT_FOOTER=$(cat << EOF
-
+          COMMENT_FOOTER="
           The test report for this PR can be found at this URL.
 
-          ${REPORT_URL}
-          EOF)
+          ${REPORT_URL}"
         fi
 
         # コメントを生成
