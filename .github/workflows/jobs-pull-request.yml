@@ -135,14 +135,21 @@ jobs:
       # Push Comment
       - name: Push Comment
         run: |
+          USER=$(git config user.name)
+          PAST_COMMIT_URL=$(gh pr view --json "comments" --jq ".comments.[] | select (.author.login == \"${USER}\") | .url")
+
           cat << EOF > comments
           The test report for this PR can be found at this URL.
 
           ${PAGE_URL}${REPORT_OUTPUT_PATH}/report.html
           EOF
 
-          # "--edit-last"で最後のコメントを更新
-          gh pr comment -F ./comments "${PR_URL}"
+          if [ -z "$PAST_COMMIT_URL" ]; then
+            gh pr comment -F ./comments "${PR_URL}"
+          else
+            gh pr comment ${PAST_COMMIT_URL} -F ./comments "${PR_URL}"
+          fi
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
