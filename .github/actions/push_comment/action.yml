@@ -13,7 +13,8 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: |
+    - shell: bash
+      run: |
         COMMIT_HASH=$(git show --format='%h' --no-patch)
 
         # コメントを生成
