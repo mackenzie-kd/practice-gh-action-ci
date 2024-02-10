@@ -148,40 +148,5 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-url: ${{ github.event.pull_request.html_url }}
+          comment-text: "😊👍 PASS!!! 💯🎉"
           report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
-        # run: |
-        #   COMMIT_HASH=$(git show --format='%h' --no-patch)
-
-        #   # コメントを生成
-        #   cat << EOF > comments
-        #   ## Test Report
-        #   😊👍 PASS!!! 💯🎉
-        #   (commit: ${COMMIT_HASH})
-
-        #   The test report for this PR can be found at this URL.
-
-        #   ${PAGE_URL}${REPORT_OUTPUT_PATH}/report.html
-        #   EOF
-
-        #   # 過去のコメント数を取得
-        #   USER=$(git config user.name | sed "s/\[.*\]//")  # 名前に[bot]がある場合は除去
-        #   COMMENT_COUNT=$(gh pr view --json "comments" --jq ".comments.[] | select (.author.login == \"${USER}\") | .url" | wc -l)
-
-        #   # コメントを送信
-        #   # https://cli.github.com/manual/gh_pr_comment
-        #   if [ "${COMMENT_COUNT}" -eq 0 ]; then
-        #     gh pr comment "${PR_URL}" -F ./comments
-        #   elif [ "${COMMENT_COUNT}" -eq 1 ]; then
-        #     # "--edit-last"で最後のコミットを上書き
-        #     gh pr comment "${PR_URL}" -F ./comments --edit-last
-        #   else
-        #     # 複数コメントがある場合はエラー
-        #     echo "cannot edit because there are multiple comments. count = ${COMMENT_COUNT}"
-        #     exit 1
-        #   fi
-
-        # env:
-        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        #   PR_URL: ${{ github.event.pull_request.html_url }}
-        #   PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-        #   REPORT_OUTPUT_PATH: ${{ steps.generate_report_url.outputs.report_output_path }}
