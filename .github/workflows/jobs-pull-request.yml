@@ -117,7 +117,7 @@ jobs:
           CURRENT_TIME=$(date +"%Y%m%d_%H%M%S")
 
           # レポートのパスを生成
-          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${COMMIT_HASH}/${COMMIT_SHORT_HASH}/${CURRENT_TIME}"
+          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${COMMIT_SHORT_HASH}/${CURRENT_TIME}"
           echo "report_output_path=$REPORT_OUTPUT_PATH" >> $GITHUB_OUTPUT
 
           # レポートのタイトルを生成
