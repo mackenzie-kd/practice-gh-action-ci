@@ -123,9 +123,13 @@ jobs:
           REPORT_TITLE="Report #${PR_NUM} ${PR_TITLE}"
           echo "report_title=$REPORT_TITLE" >> $GITHUB_OUTPUT
 
-          # ソースのベースURLを作成
+          # ソースのベースURLを生成
           COMMIT_HASH_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/$(git rev-parse HEAD)"
           echo "commit_hash_url=$COMMIT_HASH_URL" >> $GITHUB_OUTPUT
+
+          # Artifactsの名前を生成
+          PAGE_ARTIFACT_NAME="github-pages-$(git rev-parse HEAD)"
+          echo "page_artifact_name=$PAGE_ARTIFACT_NAME" >> $GITHUB_OUTPUT
         env:
           TZ: Asia/Tokyo
 
@@ -151,12 +155,14 @@ jobs:
         if: ${{ always() }} # テスト失敗でも実行
         uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages-${GITHUB_SHA}
+          name: ${{ steps.generate_report_info.outputs.page_artifact_name }}
           path: ./gh_page
       - name: Deploy to GitHub Pages
         if: ${{ always() }} # テスト失敗でも実行
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: ${{ steps.generate_report_info.outputs.page_artifact_name }}
 
       # Push Comment (Test Passed)
       - name: Push Test Passed Comment
