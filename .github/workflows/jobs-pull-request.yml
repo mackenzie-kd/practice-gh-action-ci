@@ -111,10 +111,17 @@ jobs:
       - name: Generate Report URL
         id: generate_report_url
         run: |
-          PR_NUM=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
+          PR_NUM=$(jq --raw-output .pull_request.number ${GITHUB_EVENT_PATH})
+          PR_TITLE=$(jq --raw-output .pull_request.title ${GITHUB_EVENT_PATH})
           CURRENT_TIME=$(date +"%Y%m%d_%H%M%S")
+
+          # レポートのパスを生成
           REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${CURRENT_TIME}"
           echo "report_output_path=$REPORT_OUTPUT_PATH" >> $GITHUB_OUTPUT
+
+          # レポートのタイトルを生成
+          REPORT_TITLE="Report #${PR_NUM} ${PR_TITLE}"
+          echo "report_title=$REPORT_TITLE" >> $GITHUB_OUTPUT
         env:
           TZ: Asia/Tokyo
 
@@ -124,6 +131,7 @@ jobs:
         env:
           JEST_HTML_REPORTERS_PUBLIC_PATH: gh_page/${{ steps.generate_report_url.outputs.report_output_path }}
           JEST_HTML_REPORTERS_FILE_NAME: report.html
+          JEST_HTML_REPORTERS_PAGE_TITLE: ${{ steps.generate_report_url.outputs.report_title }}
 
       # Upload Report
       - name: Upload artifact
