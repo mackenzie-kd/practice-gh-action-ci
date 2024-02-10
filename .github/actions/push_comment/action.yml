@@ -25,7 +25,7 @@ runs:
 
         # コメントを生成
         cat << EOF > comments
-        ## Test Report
+        ## CI Result Status
         ${COMMENT_TEXT}
         (commit: ${COMMIT_HASH})
         ${COMMENT_FOOTER}
