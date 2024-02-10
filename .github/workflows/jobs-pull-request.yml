@@ -112,8 +112,8 @@ jobs:
         id: generate_report_url
         run: |
           PR_NUM=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
-          HASH=$(git show --format='%h' --no-patch)
-          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${HASH}"
+          CURRENT_TIME=$(date +"%Y%m%d_%H%M%S")
+          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${CURRENT_TIME}"
           echo "report_output_path=$REPORT_OUTPUT_PATH" >> $GITHUB_OUTPUT
 
       # Test
@@ -140,7 +140,7 @@ jobs:
 
           cat << EOF > comments
           ## Test Report
-          Test Succeded. :hundred_points: :party_popper:
+          😊👍 PASS!!! 💯🎉
 
           The test report for this PR can be found at this URL.
 
