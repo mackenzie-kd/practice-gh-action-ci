@@ -17,15 +17,22 @@ runs:
       run: |
         COMMIT_HASH=$(git show --format='%h' --no-patch)
 
+        # レポートURLがある場合はコメントフッターを生成
+        if [ -z "${REPORT_URL}" ]; then
+          COMMENT_FOOTER=$(cat << EOF
+
+          The test report for this PR can be found at this URL.
+
+          ${REPORT_URL}
+          EOF)
+        fi
+
         # コメントを生成
         cat << EOF > comments
         ## Test Report
         😊👍 PASS!!! 💯🎉
         (commit: ${COMMIT_HASH})
-
-        The test report for this PR can be found at this URL.
-
-        ${REPORT_URL}
+        ${COMMENT_FOOTER}
         EOF
 
         # 過去のコメント数を取得
