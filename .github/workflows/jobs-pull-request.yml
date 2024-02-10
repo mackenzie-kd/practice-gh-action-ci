@@ -131,8 +131,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-url: ${{ github.event.pull_request.html_url }}
-          comment-text: "🏃 Test running..."
-          report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
+          comment-text: "Test running... 🏃🚲🚓"
 
       # Test
       - name: Test
@@ -157,5 +156,5 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-url: ${{ github.event.pull_request.html_url }}
-          comment-text: "💯 Passed the test !!"
+          comment-text: "Passed the test !! 🤟😊💯"
           report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
