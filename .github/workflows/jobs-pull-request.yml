@@ -142,7 +142,7 @@ jobs:
           EOF
 
           # "--edit-last"で最後のコメントを更新
-          gh pr comment --edit-last -F ./comments "${PR_URL}"
+          gh pr comment -F ./comments "${PR_URL}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
