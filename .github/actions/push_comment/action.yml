@@ -18,7 +18,7 @@ runs:
         COMMIT_HASH=$(git show --format='%h' --no-patch)
 
         # レポートURLがある場合はコメントフッターを生成
-        if [ -z "${REPORT_URL}" ]; then
+        if [ -n "${REPORT_URL}" ]; then
           COMMENT_FOOTER="
           The test report for this PR can be found at this URL.
 
