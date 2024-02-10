@@ -139,6 +139,9 @@ jobs:
           COMMIT_COUNT=$(gh pr view --json "comments" --jq ".comments.[] | select (.author.login == \"${USER}\") | .url" | wc -l)
 
           cat << EOF > comments
+          ## Test Report
+          Test Succeded. :hundred_points: :party_popper:
+
           The test report for this PR can be found at this URL.
 
           ${PAGE_URL}${REPORT_OUTPUT_PATH}/report.html
@@ -150,6 +153,7 @@ jobs:
             gh pr comment "${PR_URL}" -F ./comments
           elif [ "${COMMIT_COUNT}" -eq 1 ]; then
             # "--edit-last"で最後のコミットを上書き
+            # （コメント内容が同じ場合は上書きしない）
             gh pr comment "${PR_URL}" -F ./comments --edit-last
           else
             # 複数コメントがある場合はエラー
