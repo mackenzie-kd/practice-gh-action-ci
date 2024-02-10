@@ -4,12 +4,10 @@ inputs:
     required: true
   pr-url:
     required: true
+  comment-text:
+    required: true
   report-url:
     required: false
-# outputs:
-#   random-number:
-#     description: "Random number"
-#     value: ${{ steps.random-number-generator.outputs.random-id }}
 runs:
   using: "composite"
   steps:
@@ -28,7 +26,7 @@ runs:
         # コメントを生成
         cat << EOF > comments
         ## Test Report
-        😊👍 PASS!!! 💯🎉
+        ${COMMENT_TEXT}
         (commit: ${COMMIT_HASH})
         ${COMMENT_FOOTER}
         EOF
@@ -51,10 +49,7 @@ runs:
         fi
 
       env:
-        # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
-        # PR_URL: ${{ github.event.pull_request.html_url }}
         PR_URL: ${{ inputs.pr-url }}
-        # PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-        # REPORT_OUTPUT_PATH: ${{ steps.generate_report_url.outputs.report_output_path }}
+        COMMENT_TEXT: ${{ inputs.comment-text }}
         REPORT_URL: ${{ inputs.report-url }}
