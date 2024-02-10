@@ -143,18 +143,31 @@ jobs:
 
       # Upload Report
       - name: Upload artifact
+        if: ${{ always() }} # テスト失敗でも実行
         uses: actions/upload-pages-artifact@v3
         with:
           path: "./gh_page"
       - name: Deploy to GitHub Pages
+        if: ${{ always() }} # テスト失敗でも実行
         id: deployment
         uses: actions/deploy-pages@v4
 
-      # Push Comment (Test Finish)
-      - name: Push Test Finish Comment
+      # Push Comment (Test Passed)
+      - name: Push Test Passed Comment
+        if: ${{ success() }} # テスト成功で実行
         uses: ./.github/actions/push_comment
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-url: ${{ github.event.pull_request.html_url }}
-          comment-text: "Passed the test !! 🤟😊💯"
+          comment-text: "Test Passed !! 🤟😊💯"
+          report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
+
+      # Push Comment (Test Failed)
+      - name: Push Test Failed Comment
+        if: ${{ failure() }} # テスト失敗で実行
+        uses: ./.github/actions/push_comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-url: ${{ github.event.pull_request.html_url }}
+          comment-text: "Test failed !! 🖕👺💥"
           report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_url.outputs.report_output_path }}/report.html
