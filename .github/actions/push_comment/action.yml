@@ -30,7 +30,7 @@ runs:
         ## CI Result Status
         ### ${COMMENT_TEXT}
         - commit: ${COMMIT_HASH}
-        - time: $(date +"%Y/%-m/%-d(%a) %-H:%-M:%-S")
+        - time: $(date +"%Y/%-m/%-d(%a) %H:%M:%S")
         ${COMMENT_FOOTER}
         EOF
 
