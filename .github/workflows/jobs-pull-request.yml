@@ -114,10 +114,9 @@ jobs:
           PR_NUM=$(jq --raw-output .pull_request.number ${GITHUB_EVENT_PATH})
           PR_TITLE=$(jq --raw-output .pull_request.title ${GITHUB_EVENT_PATH})
           COMMIT_SHORT_HASH=$(git show --format='%h' --no-patch)
-          CURRENT_TIME=$(date +"%Y%m%d_%H%M%S")
 
           # レポートのパスを生成
-          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${COMMIT_SHORT_HASH}/${CURRENT_TIME}"
+          REPORT_OUTPUT_PATH="ci/pr${PR_NUM}/${COMMIT_SHORT_HASH}"
           echo "report_output_path=$REPORT_OUTPUT_PATH" >> $GITHUB_OUTPUT
 
           # レポートのタイトルを生成
@@ -129,7 +128,7 @@ jobs:
           echo "commit_hash_url=$COMMIT_HASH_URL" >> $GITHUB_OUTPUT
 
           # Artifactsの名前を生成
-          PAGE_ARTIFACT_NAME="github-pages-${COMMIT_SHORT_HASH}-${CURRENT_TIME}"
+          PAGE_ARTIFACT_NAME="github-pages-${COMMIT_SHORT_HASH}"
           echo "page_artifact_name=$PAGE_ARTIFACT_NAME" >> $GITHUB_OUTPUT
         env:
           TZ: Asia/Tokyo
