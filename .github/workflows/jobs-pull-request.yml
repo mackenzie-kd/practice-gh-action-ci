@@ -6,26 +6,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build_and_deploy:
+  check:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
-    # テストなので全ての書き込み権限を与える
-    permissions:
-      actions: write
-      checks: write
-      contents: write
-      deployments: write
-      issues: write
-      packages: write
-      pull-requests: write
-      repository-projects: write
-      security-events: write
-      statuses: write
-
-      # Github Pagesへのアップロード権限
-      # contents: read
-      pages: write
-      id-token: write
-
     runs-on: ubuntu-latest
     steps:
 
@@ -62,6 +44,29 @@ jobs:
           exit 1
         env:
           OTHER_OPEN_PR_COUNT: ${{ steps.get_other_open_pr_count.outputs.other_open_pr_count }}
+
+  build_and_deploy:
+    needs: check
+    # テストなので全ての書き込み権限を与える
+    permissions:
+      actions: write
+      checks: write
+      contents: write
+      deployments: write
+      issues: write
+      packages: write
+      pull-requests: write
+      repository-projects: write
+      security-events: write
+      statuses: write
+
+      # Github Pagesへのアップロード権限
+      # contents: read
+      pages: write
+      id-token: write
+
+    runs-on: ubuntu-latest
+    steps:
 
       # Checkout（直前より前のコミットも対象）
       - name: Checkout
