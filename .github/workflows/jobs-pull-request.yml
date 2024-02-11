@@ -184,7 +184,7 @@ jobs:
           cache: yarn
           cache-dependency-path: ./yarn.lock
       - name: Test
-        run: yarn run test
+        run: yarn --frozen-lockfile && yarn run test
         env:
           JEST_HTML_REPORTERS_PUBLIC_PATH: gh_page/${{ steps.generate_report_info.outputs.report_output_path }}
           JEST_HTML_REPORTERS_FILE_NAME: report.html
