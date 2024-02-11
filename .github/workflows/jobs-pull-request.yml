@@ -108,21 +108,9 @@ jobs:
 
   test:
     needs: build
-    # テストなので全ての書き込み権限を与える
     permissions:
-      actions: write
-      checks: write
-      contents: write
-      deployments: write
-      issues: write
-      packages: write
-      pull-requests: write
-      repository-projects: write
-      security-events: write
-      statuses: write
-
       # Github Pagesへのアップロード権限
-      # contents: read
+      contents: read
       pages: write
       id-token: write
 
@@ -132,6 +120,10 @@ jobs:
       # Checkout
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Set Git Config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       # Generate Report Info
       - name: Generate Report Info
