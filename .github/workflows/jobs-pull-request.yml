@@ -108,11 +108,24 @@ jobs:
 
   test:
     needs: build
+    # テストなので全ての書き込み権限を与える
     permissions:
+      actions: write
+      checks: write
+      contents: write
+      deployments: write
+      issues: write
+      packages: write
+      pull-requests: write
+      repository-projects: write
+      security-events: write
+      statuses: write
+
       # Github Pagesへのアップロード権限
-      contents: read
+      # contents: read
       pages: write
       id-token: write
+
     runs-on: ubuntu-latest
     steps:
 
