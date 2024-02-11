@@ -2,8 +2,8 @@ name: Run Any Actions on PR
 'on': pull_request
 
 env:
-  GIT_HUB_APP_NAME: joint-purchase-github-app[bot]
-  GIT_HUB_APP_EMAIL: 123704127+joint-purchase-github-app[bot]@users.noreply.github.com
+  GIT_HUB_APP_NAME: github-actions[bot]
+  GIT_HUB_APP_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
 
 jobs:
   check:
