@@ -108,6 +108,11 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      # Github Pagesへのアップロード権限
+      contents: read
+      pages: write
+      id-token: write
     steps:
 
       # Checkout（直前より前のコミットも対象）
