@@ -131,14 +131,16 @@ jobs:
       # Checkout（直前より前のコミットも対象）
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Git Setup
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout $PR_FROM_BRANCH_NAME
+          # git checkout $PR_FROM_BRANCH_NAME
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
+          # PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
 
       # Generate Report Info
       - name: Generate Report Info
