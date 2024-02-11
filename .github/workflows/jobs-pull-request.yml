@@ -10,7 +10,6 @@ jobs:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     steps:
-
       - name: View all pull requests
         run: |
             gh pr list \
@@ -45,8 +44,9 @@ jobs:
         env:
           OTHER_OPEN_PR_COUNT: ${{ steps.get_other_open_pr_count.outputs.other_open_pr_count }}
 
-  build_and_deploy:
+  build:
     needs: check
+    runs-on: ubuntu-latest
     # テストなので全ての書き込み権限を与える
     permissions:
       actions: write
@@ -59,13 +59,6 @@ jobs:
       repository-projects: write
       security-events: write
       statuses: write
-
-      # Github Pagesへのアップロード権限
-      # contents: read
-      pages: write
-      id-token: write
-
-    runs-on: ubuntu-latest
     steps:
 
       # Checkout（直前より前のコミットも対象）
@@ -112,6 +105,44 @@ jobs:
       - name: Build
         run: yarn --frozen-lockfile && yarn run build
 
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    # テストなので全ての書き込み権限を与える
+    permissions:
+      actions: write
+      checks: write
+      contents: write
+      deployments: write
+      issues: write
+      packages: write
+      pull-requests: write
+      repository-projects: write
+      security-events: write
+      statuses: write
+
+      # Github Pagesへのアップロード権限
+      # contents: read
+      pages: write
+      id-token: write
+
+    steps:
+
+      # Checkout（直前より前のコミットも対象）
+      # NOTE: 後続のGit操作でカレントブランチをfeatureブランチにしておいた方が都合が良いのでcheckoutしておく
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Git Setup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout $PR_FROM_BRANCH_NAME
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
+
       # Generate Report Info
       - name: Generate Report Info
         id: generate_report_info
@@ -136,8 +167,6 @@ jobs:
           # NOTE: 同じハッシュでActionsを2回実行した時は後のArtifactsしか残らないので、ハッシュだけ名前に付与する
           PAGE_ARTIFACT_NAME="github-pages-${COMMIT_SHORT_HASH}"
           echo "page_artifact_name=$PAGE_ARTIFACT_NAME" >> $GITHUB_OUTPUT
-        env:
-          TZ: Asia/Tokyo
 
       # Push Comment (Test Running)
       - name: Push Test Finish Comment
@@ -148,8 +177,14 @@ jobs:
           comment-text: "Test running... 🏃🚲🚓"
 
       # Test
+      - name: Setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+          cache-dependency-path: ./yarn.lock
       - name: Test
-        run: yarn run test
+        run: yarn --frozen-lockfile && yarn run test
         env:
           JEST_HTML_REPORTERS_PUBLIC_PATH: gh_page/${{ steps.generate_report_info.outputs.report_output_path }}
           JEST_HTML_REPORTERS_FILE_NAME: report.html
