@@ -116,6 +116,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+      # Checkout
+      - name: Checkout
+        uses: actions/checkout@v3
+
       # Generate Report Info
       - name: Generate Report Info
         id: generate_report_info
