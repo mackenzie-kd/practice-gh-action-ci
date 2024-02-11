@@ -139,6 +139,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git branch -vv
           # git checkout $PR_FROM_BRANCH_NAME
+          git rev-parse HEAD
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
