@@ -60,41 +60,46 @@ jobs:
   build:
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      # Github Pagesへのアップロード権限
+      # contents: read
+      pages: write
+      id-token: write
     steps:
 
       # Checkout（直前より前のコミットも対象）
       - name: Checkout
         uses: actions/checkout@v3
-      #   with:
-      #     fetch-depth: 0
+        with:
+          fetch-depth: 0
 
-      # # マージ先のブランチの変更を取り込んでpush
-      # - name: Get latest base branch name
-      #   id: get_latest_base_branch_name
-      #   run: |
-      #     LATEST_BASE_BRANCH_NAME=$(\
-      #       gh pr list \
-      #         --repo $REPO \
-      #         --state open \
-      #         --json number,baseRefName | jq -r ".[] | select(.number == $PR_NUMBER) | .baseRefName"
-      #     )
-      #     echo "latest_base_branch_name=$LATEST_BASE_BRANCH_NAME" >> $GITHUB_OUTPUT
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     REPO: ${{ github.repository }}
-      #     PR_NUMBER: ${{ github.event.pull_request.number }}
-      # - name: Merge from head branch and Push to base branch
-      #   run: |
-      #     git config user.name "github-actions[bot]"
-      #     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      #     git config pull.rebase false
-      #     git checkout $PR_FROM_BRANCH_NAME
-      #     git pull origin $PR_TO_BRANCH_NAME
-      #     git push
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
-      #     PR_TO_BRANCH_NAME: ${{ steps.get_latest_base_branch_name.outputs.latest_base_branch_name }}
+      # マージ先のブランチの変更を取り込んでpush
+      - name: Get latest base branch name
+        id: get_latest_base_branch_name
+        run: |
+          LATEST_BASE_BRANCH_NAME=$(\
+            gh pr list \
+              --repo $REPO \
+              --state open \
+              --json number,baseRefName | jq -r ".[] | select(.number == $PR_NUMBER) | .baseRefName"
+          )
+          echo "latest_base_branch_name=$LATEST_BASE_BRANCH_NAME" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+      - name: Merge from head branch and Push to base branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config pull.rebase false
+          git checkout $PR_FROM_BRANCH_NAME
+          git pull origin $PR_TO_BRANCH_NAME
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
+          PR_TO_BRANCH_NAME: ${{ steps.get_latest_base_branch_name.outputs.latest_base_branch_name }}
 
       # Build
       - name: Setup
@@ -105,25 +110,6 @@ jobs:
           cache-dependency-path: ./yarn.lock
       - name: Build
         run: yarn --frozen-lockfile && yarn run build
-
-  test:
-    needs: build
-    permissions:
-      # Github Pagesへのアップロード権限
-      # contents: read
-      pages: write
-      id-token: write
-
-    runs-on: ubuntu-latest
-    steps:
-
-      # Checkout
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set Git Config
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       # Generate Report Info
       - name: Generate Report Info
