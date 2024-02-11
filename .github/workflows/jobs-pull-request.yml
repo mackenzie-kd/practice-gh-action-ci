@@ -183,7 +183,6 @@ jobs:
         run: yarn --frozen-lockfile && yarn run test
         env:
           JEST_HTML_REPORTERS_PUBLIC_PATH: gh_page/${{ steps.generate_report_info.outputs.report_output_path }}
-          JEST_HTML_REPORTERS_FILE_NAME: report.html
           JEST_HTML_REPORTERS_PAGE_TITLE: ${{ steps.generate_report_info.outputs.report_title }}
           JEST_HTML_REPORTERS_URL_FOR_TEST_FILES: ${{ steps.generate_report_info.outputs.commit_hash_url }}
 
