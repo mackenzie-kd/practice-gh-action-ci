@@ -45,7 +45,7 @@ jobs:
         env:
           OTHER_OPEN_PR_COUNT: ${{ steps.get_other_open_pr_count.outputs.other_open_pr_count }}
 
-  build_and_deploy:
+  build:
     needs: check
     # テストなので全ての書き込み権限を与える
     permissions:
@@ -59,12 +59,6 @@ jobs:
       repository-projects: write
       security-events: write
       statuses: write
-
-      # Github Pagesへのアップロード権限
-      # contents: read
-      pages: write
-      id-token: write
-
     runs-on: ubuntu-latest
     steps:
 
@@ -111,6 +105,16 @@ jobs:
           cache-dependency-path: ./yarn.lock
       - name: Build
         run: yarn --frozen-lockfile && yarn run build
+
+  test:
+    needs: build
+    permissions:
+      # Github Pagesへのアップロード権限
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
 
       # Generate Report Info
       - name: Generate Report Info
