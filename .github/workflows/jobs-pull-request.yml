@@ -123,11 +123,12 @@ jobs:
           REPORT_TITLE="Report #${PR_NUM} ${PR_TITLE}"
           echo "report_title=$REPORT_TITLE" >> $GITHUB_OUTPUT
 
-          # ソースのベースURLを生成
+          # ハッシュコミットのURLを生成
           COMMIT_HASH_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/$(git rev-parse HEAD)"
           echo "commit_hash_url=$COMMIT_HASH_URL" >> $GITHUB_OUTPUT
 
           # Artifactsの名前を生成
+          # NOTE: 同じハッシュでActionsを2回実行した時は後のArtifactsしか残らないので、ハッシュだけ名前に付与する
           PAGE_ARTIFACT_NAME="github-pages-${COMMIT_SHORT_HASH}"
           echo "page_artifact_name=$PAGE_ARTIFACT_NAME" >> $GITHUB_OUTPUT
         env:
