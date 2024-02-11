@@ -1,9 +1,9 @@
 name: Run Any Actions on PR
 'on': pull_request
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
+env:
+  GIT_HUB_APP_NAME: joint-purchase-github-app[bot]
+  GIT_HUB_APP_EMAIL: 123704127+joint-purchase-github-app[bot]@users.noreply.github.com
 
 jobs:
   check:
@@ -60,11 +60,17 @@ jobs:
       security-events: write
       statuses: write
     steps:
+      - name: Configure of github app
+        run: |
+          git config --global user.name ${{ env.GIT_HUB_APP_NAME }}
+          git config --global user.email ${{ env.GIT_HUB_APP_EMAIL }}
+          git config --global pull.rebase false
 
       # Checkout（直前より前のコミットも対象）
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       # マージ先のブランチの変更を取り込んでpush
@@ -84,15 +90,10 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
       - name: Merge from head branch and Push to base branch
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config pull.rebase false
-          git checkout $PR_FROM_BRANCH_NAME
           git pull origin $PR_TO_BRANCH_NAME
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
           PR_TO_BRANCH_NAME: ${{ steps.get_latest_base_branch_name.outputs.latest_base_branch_name }}
 
       # Build
@@ -127,21 +128,16 @@ jobs:
       id-token: write
 
     steps:
+      - name: Configure of github app
+        run: |
+          git config --global user.name ${{ env.GIT_HUB_APP_NAME }}
+          git config --global user.email ${{ env.GIT_HUB_APP_EMAIL }}
 
-      # Checkout（直前より前のコミットも対象）
-      # NOTE: 後続のGit操作でカレントブランチをfeatureブランチにしておいた方が都合が良いのでcheckoutしておく
+      # Checkout
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-      - name: Git Setup
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout $PR_FROM_BRANCH_NAME
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
+          ref: ${{ github.head_ref }}
 
       # Generate Report Info
       - name: Generate Report Info
