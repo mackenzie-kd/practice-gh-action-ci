@@ -5,12 +5,24 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# テストなので全ての書き込み権限を与える
+permissions:
+  actions: write
+  checks: write
+  contents: write
+  deployments: write
+  issues: write
+  packages: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
+
 jobs:
   check:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     steps:
-
       - name: View all pull requests
         run: |
             gh pr list \
@@ -47,18 +59,6 @@ jobs:
 
   build:
     needs: check
-    # テストなので全ての書き込み権限を与える
-    permissions:
-      actions: write
-      checks: write
-      contents: write
-      deployments: write
-      issues: write
-      packages: write
-      pull-requests: write
-      repository-projects: write
-      security-events: write
-      statuses: write
     runs-on: ubuntu-latest
     steps:
 
@@ -110,7 +110,7 @@ jobs:
     needs: build
     permissions:
       # Github Pagesへのアップロード権限
-      contents: read
+      # contents: read
       pages: write
       id-token: write
 
@@ -149,8 +149,6 @@ jobs:
           # NOTE: 同じハッシュでActionsを2回実行した時は後のArtifactsしか残らないので、ハッシュだけ名前に付与する
           PAGE_ARTIFACT_NAME="github-pages-${COMMIT_SHORT_HASH}"
           echo "page_artifact_name=$PAGE_ARTIFACT_NAME" >> $GITHUB_OUTPUT
-        env:
-          TZ: Asia/Tokyo
 
       # Push Comment (Test Running)
       - name: Push Test Finish Comment
