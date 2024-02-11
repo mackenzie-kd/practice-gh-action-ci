@@ -16,7 +16,8 @@ runs:
         COMMIT_HASH=$(git show --format='%h' --no-patch)
 
         # レポートURLがある場合はコメントフッターを生成
-        if [ -n "${REPORT_URL}" ]; then
+        # NOTE: 途中で失敗するとURLパスだけになるので、httpから始まるかで判定する
+        if [[ ${REPORT_URL} =~ ^http ]]; then
           COMMENT_FOOTER="
         ### Test Report 📈
         The test report for this PR can be found at this URL.
