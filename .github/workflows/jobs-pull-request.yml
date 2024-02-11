@@ -59,12 +59,6 @@ jobs:
       repository-projects: write
       security-events: write
       statuses: write
-
-      # Github Pagesへのアップロード権限
-      # contents: read
-      pages: write
-      id-token: write
-
     steps:
 
       # Checkout（直前より前のコミットも対象）
@@ -110,6 +104,26 @@ jobs:
           cache-dependency-path: ./yarn.lock
       - name: Build
         run: yarn --frozen-lockfile && yarn run build
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checkout（直前より前のコミットも対象）
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Merge from head branch and Push to base branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout $PR_FROM_BRANCH_NAME
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_FROM_BRANCH_NAME: ${{ github.head_ref }}
 
       # Generate Report Info
       - name: Generate Report Info
