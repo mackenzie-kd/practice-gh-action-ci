@@ -1,6 +1,6 @@
 name: Push Comment to PR
 inputs:
-  github-token:
+  token:
     required: true
   pr-url:
     required: true
@@ -53,7 +53,7 @@ runs:
 
       env:
         TZ: Asia/Tokyo
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_TOKEN: ${{ inputs.token }}
         PR_URL: ${{ inputs.pr-url }}
         COMMENT_TEXT: ${{ inputs.comment-text }}
         REPORT_URL: ${{ inputs.report-url }}

@@ -168,7 +168,7 @@ jobs:
       - name: Push Test Finish Comment
         uses: ./.github/actions/push_comment
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           pr-url: ${{ github.event.pull_request.html_url }}
           comment-text: "Test running... 🏃🚲🚓"
 
@@ -205,7 +205,7 @@ jobs:
         if: ${{ success() }} # テスト成功で実行
         uses: ./.github/actions/push_comment
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           pr-url: ${{ github.event.pull_request.html_url }}
           comment-text: "Test Passed !! 🤟😊💯"
           report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_info.outputs.report_output_path }}/report.html
@@ -215,7 +215,7 @@ jobs:
         if: ${{ failure() }} # テスト失敗で実行
         uses: ./.github/actions/push_comment
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           pr-url: ${{ github.event.pull_request.html_url }}
           comment-text: "Test failed !! 🖕👺💥"
           report-url: ${{ steps.deployment.outputs.page_url }}${{ steps.generate_report_info.outputs.report_output_path }}/report.html
